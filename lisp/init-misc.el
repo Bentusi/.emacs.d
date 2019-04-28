@@ -47,6 +47,9 @@
            (string= system-type "windows-nt"))
   (w32-send-sys-command #xf000))
 
+;; Load company-coq when opening Coq files
+(add-hook 'coq-mode-hook #'company-coq-mode)
+
 
 (provide 'init-misc)
 
