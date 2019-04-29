@@ -50,6 +50,7 @@
 ;; Load company-coq when opening Coq files
 (add-hook 'coq-mode-hook #'company-coq-mode)
 
+(setq proof-three-window-mode-policy 'hybrid)
 
 (provide 'init-misc)
 
