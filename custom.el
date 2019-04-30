@@ -24,10 +24,10 @@
 (when (display-graphic-p)
   ;; Set default fonts
   (cond
+   ((member "Source Code Variable" (font-family-list))
+    (set-face-attribute 'default nil :font "Source Code Variable"))
    ((member "Consolas" (font-family-list))
     (set-face-attribute 'default nil :font "Consolas"))
-   ((member "Source Code Pro" (font-family-list))
-    (set-face-attribute 'default nil :font "Source Code Pro"))
    ((member "Menlo" (font-family-list))
     (set-face-attribute 'default nil :font "Menlo"))
    ((member "Monaco" (font-family-list))
