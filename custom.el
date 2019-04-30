@@ -8,7 +8,7 @@
 (setq centaur-full-name "Jiang Wei")           ; User full name
 (setq centaur-mail-address "jiangwei.chn@gmail.com")   ; Email address
 ;; (setq centaur-proxy "127.0.0.1:1080")          ; Network proxy
-(setq centaur-package-archives 'netease)   ; Package repo: melpa, melpa-mirror, emacs-china netease or tuna
+(setq centaur-package-archives 'local)   ; Package repo:local melpa, melpa-mirror, emacs-china netease or tuna
 (setq centaur-theme 'doom)                  ; Color theme: default, classic, doom, dark, light or daylight
 (setq centaur-dashboard nil)                   ; Use dashboard at startup or not: t or nil
 ;; (setq centaur-lsp 'eglot)                      ; Set LSP client: lsp-mode, eglot or nil
@@ -37,7 +37,7 @@
 
   (cond
    (sys/win32p
-    (set-face-attribute 'default nil :height 120))
+    (set-face-attribute 'default nil :height 140))
    (sys/mac-x-p
     (set-face-attribute 'default nil :height 130)))
 

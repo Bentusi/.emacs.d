@@ -55,6 +55,9 @@
                             (not (gnutls-available-p))))
                (proto (if no-ssl "http" "https")))
           (pcase archives
+            ('local
+             `(,(cons "gnu"   (concat proto "://localhost"))
+               ,(cons "melpa" (concat proto "://localhost"))))
             ('melpa
              `(,(cons "gnu"   (concat proto "://elpa.gnu.org/packages/"))
                ,(cons "melpa" (concat proto "://melpa.org/packages/"))))
