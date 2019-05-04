@@ -37,7 +37,7 @@
 
   (cond
    (sys/win32p
-    (set-face-attribute 'default nil :height 140))
+    (set-face-attribute 'default nil :height 120))
    (sys/mac-x-p
     (set-face-attribute 'default nil :height 130)))
 
