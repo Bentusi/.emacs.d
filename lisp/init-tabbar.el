@@ -10,7 +10,7 @@
  'tabbar-default nil
  :background "snow3"
  :foreground "black"
- :height 1)
+ :height 1.0)
 
 ;;---------------------------------------------------------- 
 ;; 设置左边按钮外观：外框框边大小和颜色
