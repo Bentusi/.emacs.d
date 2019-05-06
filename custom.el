@@ -39,7 +39,7 @@
    (sys/win32p
     (set-face-attribute 'default nil :height 120))
    (sys/mac-x-p
-    (set-face-attribute 'default nil :height 130)))
+    (set-face-attribute 'default nil :height 180)))
 
   ;; Specify fonts for all unicode characters
   (cond
