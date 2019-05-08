@@ -1,5 +1,6 @@
-(define-package "tuareg" "20181204.2147" "OCaml mode for Emacs."
-  '((caml "3.12.0.1"))
+(define-package "tuareg" "20190505.2052" "OCaml mode for Emacs."
+  '((caml "3.12.0.1")
+    (emacs "24.4"))
   :keywords
   '("ocaml" "languages")
   :authors
