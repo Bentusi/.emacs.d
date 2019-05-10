@@ -40,8 +40,6 @@
      (progn
        (list (line-beginning-position) (line-beginning-position 2))))))
 
-(load "~/.emacs.d/site-lisp/tuareg/tuareg.el")
-
 ;; Windows 10 不能输入汉字解决
 (when (and (string-match "GNU" (emacs-version))
            (string= system-type "windows-nt"))
