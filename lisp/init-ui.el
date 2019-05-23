@@ -1,10 +1,5 @@
 ;; init-ui.el --- Initialize ui configurations.	-*- lexical-binding: t -*-
 
-;; Copyright (C) 2019 Vincent Zhang
-
-;; Author: Vincent Zhang <seagle0128@gmail.com>
-;; URL: https://github.com/seagle0128/.emacs.d
-
 ;; This file is not part of GNU Emacs.
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -38,7 +33,7 @@
 (setq fancy-splash-image centaur-logo)
 
 ;; Title
-(setq frame-title-format '("Centaur Emacs - %b"))
+(setq frame-title-format '("Emacs - %b"))
 (setq icon-title-format frame-title-format)
 
 (when sys/mac-x-p

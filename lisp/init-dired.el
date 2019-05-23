@@ -1,10 +1,5 @@
 ;; init-dired.el --- Initialize dired configurations.	-*- lexical-binding: t -*-
 
-;; Copyright (C) 2019 Vincent Zhang
-
-;; Author: Vincent Zhang <seagle0128@gmail.com>
-;; URL: https://github.com/seagle0128/.emacs.d
-
 ;; This file is not part of GNU Emacs.
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -54,10 +49,10 @@
   (when (or (and sys/macp (executable-find "gls"))
             (and (not sys/macp) (executable-find "ls")))
     ;; Using `insert-directory-program'
-    (setq ls-lisp-use-insert-directory-program t)
+    (setq ls-lisp-use-insert-directory-program nil)
 
     ;; Show directory first
-    (setq dired-listing-switches "-alh --group-directories-first")
+    (setq dired-listing-switches "-alh")
 
     ;; Quick sort dired buffers via hydra
     (use-package dired-quick-sort
