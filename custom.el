@@ -23,37 +23,22 @@
 ;; Fonts
 (when (display-graphic-p)
   ;; Set default fonts
-  (cond
-   ((member "Source Code Variable" (font-family-list))
-    (set-face-attribute 'default nil :font "Source Code Variable"))
-   ((member "Consolas" (font-family-list))
-    (set-face-attribute 'default nil :font "Consolas"))
-   ((member "Menlo" (font-family-list))
-    (set-face-attribute 'default nil :font "Menlo"))
-   ((member "Monaco" (font-family-list))
-    (set-face-attribute 'default nil :font "Monaco"))
-   ((member "DejaVu Sans Mono" (font-family-list))
-    (set-face-attribute 'default nil :font "DejaVu Sans Mono")))
+  (if (member "Source Code Variable" (font-family-list))
+      (set-face-attribute 'default nil :font "Source Code Variable"))
+
+  ;; Specify fonts for all unicode characters
+  (if (member "Segoe UI Symbol" (font-family-list))
+      (set-fontset-font t 'unicode "Segoe UI Symbol" nil 'prepend))
+
+  ;; Specify fonts for Chinese characters
+  (if (member "微软雅黑" (font-family-list))
+      (set-fontset-font t '(#x4e00 . #x9fff) "微软雅黑"))
 
   (cond
    (sys/win32p
-    (set-face-attribute 'default nil :height 120))
+    (set-face-attribute 'default nil :height 140))
    (sys/mac-x-p
     (set-face-attribute 'default nil :height 180)))
-
-  ;; Specify fonts for all unicode characters
-  (cond
-   ((member "Symbola" (font-family-list))
-    (set-fontset-font t 'unicode "Symbola" nil 'prepend))
-   ((member "Apple Color Emoji" (font-family-list))
-    (set-fontset-font t 'unicode "Apple Color Emoji" nil 'prepend)))
-
-  ;; Specify fonts for Chinese characters
-  (cond
-   ((member "微软雅黑" (font-family-list))
-    (set-fontset-font t '(#x4e00 . #x9fff) "微软雅黑"))
-   ((member "WenQuanYi Micro Hei" (font-family-list))
-    (set-fontset-font t '(#x4e00 . #x9fff) "WenQuanYi Micro Hei")))
   )
 
 ;; Misc.

@@ -1,10 +1,5 @@
 ;; init-org.el --- Initialize org configurations.	-*- lexical-binding: t -*-
 
-;; Copyright (C) 2019 Vincent Zhang
-
-;; Author: Vincent Zhang <seagle0128@gmail.com>
-;; URL: https://github.com/seagle0128/.emacs.d
-
 ;; This file is not part of GNU Emacs.
 ;;
 ;; This program is free software; you can redistribute it and/or
