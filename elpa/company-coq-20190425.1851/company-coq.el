@@ -577,7 +577,7 @@ The result matches any symbol in HEADERS, followed by BODY."
 
 (defcustom company-coq-prettify-symbols-alist '(;; Disabled
                                      ;; ("*" . ?×)  ; Inconsistent (‘intros H *’, rewrite in *, etc.)
-                                     ;; ("~" . ?¬)  ; Too invasive
+                                     ("~" . ?¬)  ; Too invasive
                                      ;; ("+-" . ?±) ; Too uncommon
                                      ;; ("++" . ?⧺) ; Not present in TeX fonts
                                      ;; ("nat" . ?𝓝) ("Prop" . ?𝓟) ; Rather uncommon
@@ -589,7 +589,7 @@ The result matches any symbol in HEADERS, followed by BODY."
                                      ("<=" . ?≤) (">=" . ?≥) ("<>" . ?≠)
                                      ("True" . ?⊤) ("False" . ?⊥)
                                      ("fun" . ?λ) ("forall" . ?∀) ("exists" . ?∃)
-                                     ("nat" . ?ℕ) ("Prop" . ?ℙ) ("Real" . ?ℝ) ("bool" . ?𝔹)
+                                     ("nat" . ?ℕ) ("Prop" . ?ℙ) ("Real" . ?ℝ) ("bool" . ?𝔹) ("not" . ?¬)
 
                                      ;; Extra symbols
                                      (">->" . ?↣)
@@ -5348,17 +5348,17 @@ BEG and END are as in
 (defun company-coq--popup-menu-no-x--read-keymap (keymap)
   "Compute a cons of title and menu entries from KEYMAP."
   (cons (car (-filter #'stringp keymap))
-	(cl-loop for pair being the key-bindings of keymap
-		 for num = 0 then (1+ num)
-		 collect (cons num pair))))
+    (cl-loop for pair being the key-bindings of keymap
+         for num = 0 then (1+ num)
+         collect (cons num pair))))
 
 (defun company-coq--popup-menu-no-x--format-entries (entries prefix)
   "Prepare a menu string from menu ENTRIES.
 Use PREFIX before each menu entry."
   (mapconcat (lambda (entry)
-	       (pcase entry
-		 (`(,num ,desc . ,_)
-		  (format "%s%d → %s" prefix num desc))))
+           (pcase entry
+         (`(,num ,desc . ,_)
+          (format "%s%d → %s" prefix num desc))))
              entries ""))
 
 (defun company-coq--popup-menu-no-x--prompt-string (entries title prefix)
@@ -5381,8 +5381,8 @@ In Emacs 25 `popup-menu' emulation is not very usable, and on 24
 it doesn't work: sometimes it shows an error, sometimes (with
 position t) it segfaults."
   (let* ((title-entries (company-coq--popup-menu-no-x--read-keymap keymap))
-	 (title (or (car title-entries) "Action"))
-	 (entries (-take 10 title-entries)))
+     (title (or (car title-entries) "Action"))
+     (entries (-take 10 title-entries)))
     (-when-let* ((choice (company-coq--popup-menu-no-x--prompt entries title "\n  ")))
       (call-interactively choice))))
 

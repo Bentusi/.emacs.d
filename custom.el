@@ -22,21 +22,26 @@
 
 ;; Fonts
 (when (display-graphic-p)
-  ;; Set default fonts
-  (if (member "Source Code Variable" (font-family-list))
-      (set-face-attribute 'default nil :font "Source Code Variable"))
-
-  ;; Specify fonts for all unicode characters
-  (if (member "Segoe UI Symbol" (font-family-list))
-      (set-fontset-font t 'unicode "Segoe UI Symbol" nil 'prepend))
-
-  ;; Specify fonts for Chinese characters
-  (if (member "微软雅黑" (font-family-list))
-      (set-fontset-font t '(#x4e00 . #x9fff) "微软雅黑"))
-
   (cond
    (sys/win32p
-    (set-face-attribute 'default nil :height 140))
+    (set-face-attribute 'default nil :height 140)
+
+    ;; Set default fonts
+    (if (member "Source Code Variable" (font-family-list))
+        (set-face-attribute 'default nil :font "Source Code Variable"))
+
+    ;; Specify fonts for all unicode characters
+    (if (member "Cambria Math" (font-family-list))
+        (set-fontset-font t 'unicode "Cambria Math" nil 'prepend))
+
+    ;; Specify fonts for all unicode characters
+    (if (member "Segoe UI Symbol" (font-family-list))
+        (set-fontset-font t 'unicode "Segoe UI Symbol" nil 'prepend))
+
+    ;; Specify fonts for Chinese characters
+    (if (member "微软雅黑" (font-family-list))
+        (set-fontset-font t '(#x4e00 . #x9fff) "微软雅黑")))
+
    (sys/mac-x-p
     (set-face-attribute 'default nil :height 180)))
   )
