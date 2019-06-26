@@ -98,7 +98,7 @@
 (require 'init-web)
 (require 'init-prog)
 
-(require 'init-tabbar)
+(require 'init-tab)
 (require 'init-misc)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
