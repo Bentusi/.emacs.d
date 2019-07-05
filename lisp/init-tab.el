@@ -25,4 +25,4 @@
 
 (setq awesome-tab-style "box")
 
-(provide 'init-tabbar)
+(provide 'init-tab)
