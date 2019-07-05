@@ -14,6 +14,12 @@
   (global-set-key (kbd "C-x <C-left>" ) 'awesome-tab-backward-tab)
   (global-set-key (kbd "C-x <C-right>") 'awesome-tab-forward-tab))
 
+ (sys/linux-x-p
+  (global-set-key (kbd "C-x <C-up>"   ) 'awesome-tab-backward-group)
+  (global-set-key (kbd "C-x <C-down>" ) 'awesome-tab-forward-group )
+  (global-set-key (kbd "C-x <C-left>" ) 'awesome-tab-backward-tab)
+  (global-set-key (kbd "C-x <C-right>") 'awesome-tab-forward-tab))
+
  (sys/mac-x-p
   (global-set-key (kbd "<s-up>"   ) 'awesome-tab-backward-group)
   (global-set-key (kbd "<s-down>" ) 'awesome-tab-forward-group )
