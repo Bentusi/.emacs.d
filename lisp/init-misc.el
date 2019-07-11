@@ -41,9 +41,9 @@
        (list (line-beginning-position) (line-beginning-position 2))))))
 
 ;; Windows 10 不能输入汉字解决
-(when (and (string-match "GNU" (emacs-version))
-           (string= system-type "windows-nt"))
-  (w32-send-sys-command #xf000))
+;; (when (and (string-match "GNU" (emacs-version))
+;;            (string= system-type "windows-nt"))
+;;   (w32-send-sys-command #xf000))
 
 ;; Load company-coq when opening Coq files
 (add-hook 'coq-mode-hook #'company-coq-mode)

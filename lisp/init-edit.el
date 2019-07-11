@@ -102,7 +102,10 @@
          ("M-g w" . avy-goto-word-1)
          ("M-g e" . avy-goto-word-0))
   :hook (after-init . avy-setup-default)
-  :config (setq avy-background t))
+  :config (setq avy-all-windows nil
+                avy-all-windows-alt t
+                avy-background t
+                avy-style 'pre))
 
 ;; Kill text between the point and the character CHAR
 (use-package avy-zap
@@ -111,8 +114,23 @@
 
 ;; Quickly follow links
 (use-package ace-link
-  :bind (("M-o" . ace-link-addr))
-  :hook (after-init . ace-link-setup-default))
+  :defines (org-mode-map
+            gnus-summary-mode-map
+            gnus-article-mode-map
+            ert-results-mode-map)
+  :bind ("M-o" . ace-link-addr)
+  :hook (after-init . ace-link-setup-default)
+  :config
+  (with-eval-after-load 'org
+    (bind-key "M-o" #'ace-link-org org-mode-map))
+  (with-eval-after-load 'gnus
+    (bind-keys
+     :map gnus-summary-mode-map
+     ("M-o" . ace-link-gnus)
+     :map gnus-article-mode-map
+     ("M-o" . ace-link-gnus)))
+  (with-eval-after-load 'ert
+    (bind-key "o" #'ace-link-help ert-results-mode-map)))
 
 ;; Jump to Chinese characters
 (use-package ace-pinyin
@@ -132,6 +150,9 @@
   ;; Disable in some modes
   (dolist (mode '(asm-mode web-mode html-mode css-mode robot-mode go-mode))
     (push mode aggressive-indent-excluded-modes))
+
+  ;; Disable in some commands
+  (add-to-list 'aggressive-indent-protected-commands #'delete-trailing-whitespace t)
 
   ;; Be slightly less aggressive in C/C++/C#/Java/Go/Swift
   (add-to-list
@@ -160,13 +181,13 @@
   :bind ([remap comment-dwim] . comment-dwim-2)) ;
 
 ;; Drag stuff (lines, words, region, etc...) around
-;; (use-package drag-stuff
-;;   :diminish
-;;   :commands drag-stuff-define-keys
-;;   :hook (after-init . drag-stuff-global-mode)
-;;   :config
-;;   (add-to-list 'drag-stuff-except-modes 'org-mode)
-;;   (drag-stuff-define-keys))
+(use-package drag-stuff
+  :diminish
+  :commands drag-stuff-define-keys
+  :hook (after-init . drag-stuff-global-mode)
+  :config
+  (add-to-list 'drag-stuff-except-modes 'org-mode)
+  (drag-stuff-define-keys))
 
 ;; A comprehensive visual interface to diff & patch
 (use-package ediff
@@ -227,7 +248,7 @@
   :diminish
   :if (executable-find "aspell")
   :hook (((text-mode outline-mode) . flyspell-mode)
-         (prog-mode . flyspell-prog-mode)
+         ;; (prog-mode . flyspell-prog-mode)
          (flyspell-mode . (lambda ()
                             (dolist (key '("C-;" "C-," "C-."))
                               (unbind-key key flyspell-mode-map)))))
@@ -275,29 +296,18 @@
               undo-tree-enable-undo-in-region nil
               undo-tree-auto-save-history nil
               undo-tree-history-directory-alist
-              `(("." . ,(concat user-emacs-directory "undo-tree-hist/"))))
+              `(("." . ,(locate-user-emacs-file "undo-tree-hist/"))))
   :config
-  ;; FIXME:  `undo-tree-visualizer-diff' is a local variable in *undo-tree* buffer.
-  (defun undo-tree-visualizer-show-diff (&optional node)
-    ;; show visualizer diff display
-    (setq-local undo-tree-visualizer-diff t)
-    (let ((buff (with-current-buffer undo-tree-visualizer-parent-buffer
-                  (undo-tree-diff node)))
-          (display-buffer-mark-dedicated 'soft)
-          win)
-      (setq win (split-window))
-      (set-window-buffer win buff)
-      (shrink-window-if-larger-than-buffer win)))
-
-  (defun undo-tree-visualizer-hide-diff ()
-    ;; hide visualizer diff display
-    (setq-local undo-tree-visualizer-diff nil)
-    (let ((win (get-buffer-window undo-tree-diff-buffer-name)))
-      (when win (with-selected-window win (kill-buffer-and-window))))))
+  ;; FIXME:  keep the diff window
+  (make-variable-buffer-local 'undo-tree-visualizer-diff))
 
 ;; Goto last change
 (use-package goto-chg
   :bind ("C-," . goto-last-change))
+
+;; Preview when `goto-line`
+(use-package goto-line-preview
+  :bind ([remap goto-line] . goto-line-preview))
 
 ;; Handling capitalized subwords in a nomenclature
 (use-package subword
@@ -311,28 +321,33 @@
   :ensure nil
   :diminish hs-minor-mode
   :bind (:map hs-minor-mode-map
-              ("C-`" . hs-toggle-hiding)))
+         ("C-`" . hs-toggle-hiding)))
 
 ;; Flexible text folding
 (use-package origami
   :hook (prog-mode . origami-mode)
   :init (setq origami-show-fold-header t)
   :bind (:map origami-mode-map
-              ("C-`" . origami-hydra/body))
+         ("C-`" . hydra-origami/body))
   :config
   (face-spec-reset-face 'origami-fold-header-face)
 
   (when centaur-lsp
     ;; Support LSP
     (use-package lsp-origami
-      :hook (origami-mode . lsp-origami-mode)))
+      :hook (origami-mode . (lambda ()
+                              (if (bound-and-true-p lsp-mode)
+                                  (lsp-origami-mode))))))
 
-  (defhydra origami-hydra (:color blue :hint none)
+  (defhydra hydra-origami (:color blue :hint none)
     "
-      _:_: recursively toggle node       _a_: toggle all nodes    _t_: toggle node
-      _o_: show only current node        _u_: undo                _r_: redo
-      _R_: reset
-      "
+^Node^                     ^Other^
+^^─────────────────────────^^────────────
+_:_: toggle recursively    _u_: undo
+_a_: toggle all            _r_: redo
+_t_: toggle current        _R_: reset
+_o_: only show current
+"
     (":" origami-recursively-toggle-node)
     ("a" origami-toggle-all-nodes)
     ("t" origami-toggle-node)
@@ -341,10 +356,24 @@
     ("r" origami-redo)
     ("R" origami-reset)))
 
+;; Open files as another user
+(unless sys/win32p
+  (use-package sudo-edit))
+
 ;; Narrow/Widen
 (use-package fancy-narrow
   :diminish
   :hook (after-init . fancy-narrow-mode))
+
+;; Edit text for browsers with GhostText or AtomicChrome extension
+(use-package atomic-chrome
+  :hook ((emacs-startup . atomic-chrome-start-server)
+         (atomic-chrome-edit-mode . delete-other-windows))
+  :init (setq atomic-chrome-buffer-open-style 'frame)
+  :config
+  (if (fboundp 'gfm-mode)
+      (setq atomic-chrome-url-major-mode-alist
+            '(("github\\.com" . gfm-mode)))))
 
 (provide 'init-edit)
 

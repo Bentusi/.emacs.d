@@ -59,6 +59,11 @@
       :bind (:map dired-mode-map
                   ("S" . hydra-dired-quick-sort/body))))
 
+  ;; Allow rsync from dired buffers
+  (use-package dired-rsync
+    :bind (:map dired-mode-map
+           ("C-c C-r" . dired-rsync)))
+
   ;; Colourful dired
   (use-package diredfl
     :init (diredfl-global-mode 1))
@@ -71,41 +76,48 @@
     :config
     (defun my-all-the-icons-dired--display ()
       "Display the icons of files without colors in a dired buffer."
-
-      ;; Fix: not display icons after dired commands (e.g insert-subdir, create-directory)
-      ;; @see https://github.com/jtbm37/all-the-icons-dired/issues/11
-      (all-the-icons-dired--reset)
-
-      (when (and (not all-the-icons-dired-displayed) dired-subdir-alist)
-        (setq-local all-the-icons-dired-displayed t)
+      (when dired-subdir-alist
         (let ((inhibit-read-only t)
               (remote-p (and (fboundp 'tramp-tramp-file-p)
                              (tramp-tramp-file-p default-directory))))
           (save-excursion
+            ;; TRICK: Use TAB to align icons
             (setq-local tab-width 1)
             (goto-char (point-min))
             (while (not (eobp))
               (when (dired-move-to-filename nil)
-                (insert "\t")
+                (insert " ")
                 (let ((file (dired-get-filename 'verbatim t)))
                   (unless (member file '("." ".."))
-                    (let ((filename (dired-get-filename nil t)))
+                    (let ((filename (file-local-name (dired-get-filename nil t))))
                       (if (file-directory-p filename)
-                          (let ((icon
-                                 (cond
-                                  (remote-p
-                                   (all-the-icons-octicon "file-directory" :height 1.0 :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust))
-                                  ((file-symlink-p filename)
-                                   (all-the-icons-octicon "file-symlink-directory" :height 1.0 :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust))
-                                  ((all-the-icons-dir-is-submodule filename)
-                                   (all-the-icons-octicon "file-submodule" :height 1.0 :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust))
-                                  ((file-exists-p (format "%s/.git" filename))
-                                   (all-the-icons-octicon "repo" :height 1.1 :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust ))
-                                  (t (let ((matcher (all-the-icons-match-to-alist file all-the-icons-dir-icon-alist)))
-                                       (apply (car matcher) (list (cadr matcher) :face 'all-the-icons-dired-dir-face :v-adjust all-the-icons-dired-v-adjust)))))))
+                          (let ((icon (cond
+                                       (remote-p
+                                        (all-the-icons-octicon "file-directory"
+                                                               :v-adjust all-the-icons-dired-v-adjust
+                                                               :face 'all-the-icons-dired-dir-face))
+                                       ((file-symlink-p filename)
+                                        (all-the-icons-octicon "file-symlink-directory"
+                                                               :v-adjust all-the-icons-dired-v-adjust
+                                                               :face 'all-the-icons-dired-dir-face))
+                                       ((all-the-icons-dir-is-submodule filename)
+                                        (all-the-icons-octicon "file-submodule"
+                                                               :v-adjust all-the-icons-dired-v-adjust
+                                                               :face 'all-the-icons-dired-dir-face))
+                                       ((file-exists-p (format "%s/.git" filename))
+                                        (all-the-icons-octicon "repo"
+                                                               :height 1.1
+                                                               :v-adjust all-the-icons-dired-v-adjust
+                                                               :face 'all-the-icons-dired-dir-face))
+                                       (t (let ((matcher (all-the-icons-match-to-alist
+                                                          file all-the-icons-dir-icon-alist)))
+                                            (apply (car matcher)
+                                                   (list (cadr matcher)
+                                                         :face 'all-the-icons-dired-dir-face
+                                                         :v-adjust all-the-icons-dired-v-adjust)))))))
                             (insert icon))
-                        (insert (all-the-icons-icon-for-file file :v-adjust -0.05))))
-                    (insert "\t"))))
+                        (insert (all-the-icons-icon-for-file file :v-adjust all-the-icons-dired-v-adjust))))
+                    (insert "\t "))))   ; Align and keep one space for refeshing after operations
               (forward-line 1))))))
     (advice-add #'all-the-icons-dired--display :override #'my-all-the-icons-dired--display))
 

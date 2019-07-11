@@ -1,5 +1,10 @@
 ;; init-org.el --- Initialize org configurations.	-*- lexical-binding: t -*-
 
+;; Copyright (C) 2019 Vincent Zhang
+
+;; Author: Vincent Zhang <seagle0128@gmail.com>
+;; URL: https://github.com/seagle0128/.emacs.d
+
 ;; This file is not part of GNU Emacs.
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -32,24 +37,43 @@
   :ensure nil
   :commands org-try-structure-completion
   :functions hydra-org-template/body
+  :custom-face (org-ellipsis ((t (:foreground nil))))
   :bind (("C-c a" . org-agenda)
          ("C-c b" . org-switchb))
-  :hook (org-indent-mode . (lambda() (diminish 'org-indent-mode)))
+  :hook ((org-mode . (lambda ()
+                       "Beautify Org Checkbox Symbol"
+                       (push '("[ ]" . ?☐) prettify-symbols-alist)
+                       (push '("[X]" . ?☑) prettify-symbols-alist)
+                       (push '("[-]" . ?❍) prettify-symbols-alist)
+                       (push '("#+BEGIN_SRC" . ?✎) prettify-symbols-alist)
+                       (push '("#+END_SRC" . ?□) prettify-symbols-alist)
+                       (push '("#+BEGIN_QUOTE" . ?») prettify-symbols-alist)
+                       (push '("#+END_QUOTE" . ?«) prettify-symbols-alist)
+                       (push '("#+HEADERS" . ?☰) prettify-symbols-alist)
+                       (prettify-symbols-mode 1)))
+         (org-indent-mode . (lambda()
+                              (diminish 'org-indent-mode)
+                              ;; WORKAROUND: Prevent text moving around while using brackets
+                              ;; @see https://github.com/seagle0128/.emacs.d/issues/88
+                              (make-variable-buffer-local 'show-paren-mode)
+                              (setq show-paren-mode nil))))
   :config
   (setq org-agenda-files '("~/org")
-        org-todo-keywords '((sequence "TODO(T)" "DOING(I)" "HANGUP(H)" "|" "DONE(D)" "CANCEL(C)")
-                            (sequence "⚑(t)" "🏴(i)" "❓(h)" "|" "✔(d)" "✘(c)"))
+        org-todo-keywords '((sequence "TODO(t)" "DOING(i)" "HANGUP(h)" "|" "DONE(d)" "CANCEL(c)")
+                            (sequence "⚑(T)" "🏴(I)" "❓(H)" "|" "✔(D)" "✘(C)"))
         org-todo-keyword-faces '(("HANGUP" . warning)
                                  ("❓" . warning))
         org-log-done 'time
+        org-catch-invisible-edits 'smart
         org-startup-indented t
-        org-ellipsis (if (char-displayable-p ?) "  " nil)
+        org-ellipsis (if (char-displayable-p ?) "  " nil)
         org-pretty-entities t
         org-hide-emphasis-markers t)
 
+  ;; Enable markdown backend
   (add-to-list 'org-export-backends 'md)
 
-  ;; More fancy UI
+  ;; Prettify UI
   (use-package org-bullets
     :if (char-displayable-p ?◉)
     :hook (org-mode . org-bullets-mode))
@@ -99,7 +123,7 @@
   ;; Rich text clipboard
   (use-package org-rich-yank
     :bind (:map org-mode-map
-                ("C-M-y" . org-rich-yank)))
+           ("C-M-y" . org-rich-yank)))
 
   ;; Table of contents
   (use-package toc-org
@@ -115,12 +139,12 @@
     :functions (org-display-inline-images
                 org-remove-inline-images)
     :bind (:map org-mode-map
-                ("C-<f7>" . org-tree-slide-mode)
-                :map org-tree-slide-mode-map
-                ("<left>" . org-tree-slide-move-previous-tree)
-                ("<right>" . org-tree-slide-move-next-tree)
-                ("S-SPC" . org-tree-slide-move-previous-tree)
-                ("SPC" . org-tree-slide-move-next-tree))
+           ("C-<f7>" . org-tree-slide-mode)
+           :map org-tree-slide-mode-map
+           ("<left>" . org-tree-slide-move-previous-tree)
+           ("<right>" . org-tree-slide-move-next-tree)
+           ("S-SPC" . org-tree-slide-move-previous-tree)
+           ("SPC" . org-tree-slide-move-next-tree))
     :hook ((org-tree-slide-play . (lambda ()
                                     (text-scale-increase 4)
                                     (org-display-inline-images)
@@ -137,7 +161,7 @@
   (use-package org-pomodoro
     :after org-agenda
     :bind (:map org-agenda-mode-map
-                ("P" . org-pomodoro)))
+           ("P" . org-pomodoro)))
 
   ;; Visually summarize progress
   (use-package org-dashboard)
@@ -196,18 +220,6 @@ _h_tml    _S_HELL     _p_erl          _A_SCII:
                   (hydra-org-template/body)
                 (self-insert-command 1)))
             org-mode-map))
-
-(setq org-agenda-files
-      (list "~/org/personal.org"
-            "~/org/action.org"
-            "~/org/project.org"))
-
-(defun gtd ()
-  (interactive)
-  (find-file "~/org/personal.org")
-  (find-file "~/org/project.org")
-  (find-file "~/org/action.org"))
-
 
 (provide 'init-org)
 

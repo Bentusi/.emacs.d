@@ -31,9 +31,9 @@
 ;;; Code:
 
 ;; Directional window-selection routines
-;; (use-package windmove
-;;   :ensure nil
-;;   :hook (after-init . windmove-default-keybindings 'ctrl))
+(use-package windmove
+  :ensure nil
+  :hook (after-init . windmove-default-keybindings))
 
 ;; Restore old window configurations
 (use-package winner
@@ -56,7 +56,7 @@
   :functions (hydra-frame-window/body my-aw-window<)
   :bind ([remap other-window] . ace-window)
   :custom-face
-  (aw-leading-char-face ((t (:inherit error :bold t :height 1.1))))
+  (aw-leading-char-face ((t (:inherit font-lock-keyword-face :bold t :height 3.0))))
   (aw-mode-line-face ((t (:inherit mode-line-emphasis :bold t))))
   :preface
   (defun toggle-window-split ()
@@ -67,9 +67,9 @@
                (this-win-edges (window-edges (selected-window)))
                (next-win-edges (window-edges (next-window)))
                (this-win-2nd (not (and (<= (car this-win-edges)
-                                          (car next-win-edges))
+                                           (car next-win-edges))
                                        (<= (cadr this-win-edges)
-                                          (cadr next-win-edges)))))
+                                           (cadr next-win-edges)))))
                (splitter
                 (if (= (car this-win-edges)
                        (car (window-edges (next-window))))
@@ -83,20 +83,21 @@
             (set-window-buffer (next-window) next-win-buffer)
             (select-window first-win)
             (if this-win-2nd (other-window 1))))))
-  :hook (after-init . ace-window-display-mode)
+  :hook (emacs-startup . ace-window-display-mode)
   :config
   ;; (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
 
   ;; https://github.com/abo-abo/ace-window/wiki/Hydra
-  ;; hydra-frame-window is designed from `ace-window' and
-  ;; matches aw-dispatch-alist with a few extra
-  (defhydra hydra-frame-window (:color red :hint nil)
+  ;; `hydra-frame-window' is designed from `ace-window' and
+  ;; matches `aw-dispatch-alist' with a few extra
+  (defhydra hydra-frame-window (:color red :hint none)
     "
-^Frame^                 ^Window^      Window Size^^^^^^    ^Text Zoom^               (__)
-_0_: delete             _t_oggle        ^ ^ _k_ ^ ^            _=_                   (oo)
-_1_: delete others      _s_wap          _h_ ^+^ _l_            ^+^             /------\\/
+^Frame^                 ^Window^      ^Window Size^^^^     ^Text Zoom^
+^^──────────────────────^^────────────^^──────────^^^^─────^^───────────────         (__)
+_0_: delete             _t_oggle        ^ ^ _k_ ^ ^            _+_                   (oo)
+_1_: delete others      _s_wap          _h_ ^+^ _l_            _=_             /------\\/
 _2_: new                _d_elete        ^ ^ _j_ ^ ^            _-_            / |    ||
-_F_ullscreen            _o_ther         _b_alance^^^^          ^ ^        *  /\\---/\\  ~~  C-c w/C-x o w
+_F_ullscreen            _o_ther         _b_alance^^^^          ^ ^         *  /\\-----/\\  ~~  C-c w/C-x o w
 "
     ("0" delete-frame :exit t)
     ("1" delete-other-frames :exit t)
@@ -108,7 +109,8 @@ _F_ullscreen            _o_ther         _b_alance^^^^          ^ ^        *  /\\
     ("d" ace-delete-window :exit t)
     ("o" ace-window :exit t)
     ("-" text-scale-decrease)
-    ("=" text-scale-increase)
+    ("=" (text-scale-increase 0))
+    ("+" text-scale-increase)
     ("h" shrink-window-horizontally)
     ("k" shrink-window)
     ("j" enlarge-window)
@@ -123,6 +125,7 @@ _F_ullscreen            _o_ther         _b_alance^^^^          ^ ^        *  /\\
 (put 'shackle--current-popup-window 'permanent-local t)
 
 (use-package shackle
+  :functions org-switch-to-buffer-other-window
   :commands shackle-display-buffer
   :hook (after-init . shackle-mode)
   :config
@@ -172,11 +175,14 @@ _F_ullscreen            _o_ther         _b_alance^^^^          ^ ^        *  /\\
     (advice-add #'keyboard-quit :before #'shackle-close-popup-window-hack)
     (advice-add #'shackle-display-buffer :around #'shackle-display-buffer-hack))
 
+  ;; HACK: compatibility issuw with `org-switch-to-buffer-other-window'
+  (advice-add #'org-switch-to-buffer-other-window :override #'switch-to-buffer-other-window)
+
   ;; rules
-  (setq shackle-default-size 0.4)
-  (setq shackle-default-alignment 'below)
-  (setq shackle-default-rule nil)
-  (setq shackle-rules
+  (setq shackle-default-size 0.4
+        shackle-default-alignment 'below
+        shackle-default-rule nil
+        shackle-rules
         '(("*Help*" :select t :size 0.3 :align 'below :autoclose t)
           ("*compilation*" :size 0.3 :align 'below :autoclose t)
           ("*Completions*" :size 0.3 :align 'below :autoclose t)
@@ -188,16 +194,22 @@ _F_ullscreen            _o_ther         _b_alance^^^^          ^ ^        *  /\\
           ("^\\*.*Shell Command.*\\*$" :regexp t :size 0.3 :align 'below :autoclose t)
           ("\\*[Wo]*Man.*\\*" :regexp t :select t :align 'below :autoclose t)
           ("*Calendar*" :select t :size 0.3 :align 'below)
+          ("\\*ivy-occur .*\\*" :regexp t :size 0.4 :select t :align 'below)
           (" *undo-tree*" :select t)
           ("*Paradox Report*" :size 0.3 :align 'below :autoclose t)
           ("*quickrun*" :select t :size 15 :align 'below)
           ("*tldr*" :align 'below :autoclose t)
           ("*Youdao Dictionary*" :size 0.3 :align 'below :autoclose t)
           ("*Finder*" :select t :size 0.3 :align 'below :autoclose t)
+          ("^\\*elfeed-entry" :regexp t :size 0.7 :align 'below :autoclose t)
+          ("*lsp-help*" :size 0.3 :align 'below :autoclose t)
+          ("*lsp session*" :size 0.4 :align 'below :autoclose t)
+          (" *Org todo*" :select t :size 4 :align 'below :autoclose t)
+          ("*Org Dashboard*" :select t :size 0.4 :align 'below :autoclose t)
+          ("^\\*macro expansion\\**" :regexp t :size 0.4 :align 'below)
 
           (ag-mode :select t :align 'below)
           (grep-mode :select t :align 'below)
-          (ivy-occur-grep-mode :select t :align 'below)
           (pt-mode :select t :align 'below)
           (rg-mode :select t :align 'below)
 

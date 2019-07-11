@@ -61,6 +61,19 @@
 (if sys/mac-x-p
     (bind-key "s-r" #'revert-this-buffer))
 
+;; Mode line
+(defun mode-line-height ()
+  "Get the height of the mode-line."
+  (- (elt (window-pixel-edges) 3)
+     (elt (window-inside-pixel-edges) 3)))
+
+;; Reload configurations
+(defun reload-init-file ()
+  "Reload Emacs configurations."
+  (interactive)
+  (load-file user-init-file))
+(bind-key "C-c C-l" #'reload-init-file)
+
 ;; Browse the homepage
 (defun browse-homepage ()
   "Browse the Github page of Centaur Emacs."
@@ -95,19 +108,20 @@
 
 (declare-function upgrade-packages 'init-package)
 (defalias 'centaur-update-packages 'upgrade-packages)
-(defun update-centaur()
+
+(defun update-config-and-packages()
   "Update confgiurations and packages."
   (interactive)
   (update-config)
   (upgrade-packages nil))
-(defalias 'centaur-update 'update-centaur)
+(defalias 'centaur-update 'update-config-and-packages)
 
 (defun update-all()
-  "Update dotfiles, org files, Emacs confgiurations and packages, ."
+  "Update dotfiles, org files, Emacs confgiurations and packages to the latest versions ."
   (interactive)
-  (update-centaur)
   (update-org)
-  (update-dotfiles))
+  (update-dotfiles)
+  (update-config-and-packages))
 (defalias 'centaur-update-all 'update-all)
 
 (defun update-dotfiles ()
@@ -144,13 +158,18 @@
   (switch-to-buffer (get-buffer-create "*scratch*"))
   (lisp-interaction-mode))
 
-;; Save a file as utf-8
+;; Save a file as UTF-8
 (defun save-buffer-as-utf8 (coding-system)
   "Revert a buffer with `CODING-SYSTEM' and save as UTF-8."
   (interactive "zCoding system for visited file (default nil):")
   (revert-buffer-with-coding-system coding-system)
   (set-buffer-file-coding-system 'utf-8)
   (save-buffer))
+
+(defun save-buffer-gbk-as-utf8 ()
+  "Revert a buffer with GBK and save as UTF-8."
+  (interactive)
+  (save-buffer-as-utf8 'gbk))
 
 ;; Recompile elpa directory
 (defun recompile-elpa ()
@@ -164,7 +183,7 @@
 (defun recompile-site-lisp ()
   "Recompile packages in site-lisp directory."
   (interactive)
-  (let ((dir (concat user-emacs-directory "site-lisp")))
+  (let ((dir (locate-user-emacs-file "site-lisp")))
     (if (fboundp 'async-byte-recompile-directory)
         (async-byte-recompile-directory dir)
       (byte-recompile-directory dir 0 t))))
@@ -174,14 +193,16 @@
 ;;
 
 (defun proxy-http-show ()
-  "Show http/https proxy."
+  "Show HTTP/HTTPS proxy."
   (interactive)
   (if url-proxy-services
       (message "Current HTTP proxy is \"%s\"" centaur-proxy)
-    (message "No proxy")))
+    (message "No HTTP proxy")))
+
+
 
 (defun proxy-http-enable ()
-  "Enable http/https proxy."
+  "Enable HTTP/HTTPS proxy."
   (interactive)
   (setq url-proxy-services `(("http" . ,centaur-proxy)
                              ("https" . ,centaur-proxy)
@@ -189,13 +210,13 @@
   (proxy-http-show))
 
 (defun proxy-http-disable ()
-  "Disable http/https proxy."
+  "Disable HTTP/HTTPS proxy."
   (interactive)
   (setq url-proxy-services nil)
   (proxy-http-show))
 
 (defun proxy-http-toggle ()
-  "Toggle http/https proxy."
+  "Toggle HTTP/HTTPS proxy."
   (interactive)
   (if url-proxy-services
       (proxy-http-disable)
@@ -203,20 +224,35 @@
 
 (defvar socks-noproxy)
 (defvar socks-server)
+(defun proxy-socks-show ()
+  "Show SOCKS proxy."
+  (interactive)
+  (if socks-noproxy
+      (message "Current SOCKS%d proxy is %s:%d"
+               (cadddr socks-server) (cadr socks-server) (caddr socks-server))
+    (message "No SOCKS proxy")))
+
 (defun proxy-socks-enable ()
-  "Enable Socks proxy."
+  "Enable SOCKS proxy."
   (interactive)
   (setq url-gateway-method 'socks)
   (setq socks-noproxy '("localhost"))
   (setq socks-server '("Default server" "127.0.0.1" 1086 5))
-  (message "Enable socks proxy."))
+  (proxy-socks-show))
 
 (defun proxy-socks-disable ()
-  "Disable Socks proxy."
+  "Disable SOCKS proxy."
   (interactive)
   (setq url-gateway-method 'native)
   (setq socks-noproxy nil)
-  (message "Disable socks proxy."))
+  (proxy-socks-show))
+
+(defun proxy-socks-toggle ()
+  "Toggle SOCKS proxy."
+  (interactive)
+  (if socks-noproxy
+      (proxy-socks-disable)
+    (proxy-socks-enable)))
 
 (provide 'init-funcs)
 

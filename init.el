@@ -1,30 +1,70 @@
-;;; init.el --- Emacs configurations.	-*- lexical-binding: t no-byte-compile: t; -*-
+;;; init.el --- Centaur Emacs configurations.	-*- lexical-binding: t no-byte-compile: t; -*-
+
+;; Copyright (C) 2006-2019 Vincent Zhang
+
+;; Author: Vincent Zhang <seagle0128@gmail.com>
+;; URL: https://github.com/seagle0128/.emacs.d
+;; Version: 5.5.0
+;; Keywords: .emacs.d centaur
+
+;; This file is not part of GNU Emacs.
+;;
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program; see the file COPYING.  If not, write to
+;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth
+;; Floor, Boston, MA 02110-1301, USA.
+;;
 
 ;;; Commentary:
 ;;
-;; Emacs configurations.
+;; Centaur Emacs configurations.
 ;;
 
 ;;; Code:
 
-(when (version< emacs-version "26.1")
-  (error "This requires Emacs 26.1 and above!"))
+(when (version< emacs-version "25.1")
+  (error "This requires Emacs 25.1 and above!"))
 
 ;; Speed up startup
 (defvar default-file-name-handler-alist file-name-handler-alist)
 (setq file-name-handler-alist nil)
-(setq gc-cons-threshold 80000000)
+(setq gc-cons-threshold 40000000)
 (add-hook 'emacs-startup-hook
           (lambda ()
-            "Restore defalut values after init."
+            "Restore defalut values after startup."
             (setq file-name-handler-alist default-file-name-handler-alist)
             (setq gc-cons-threshold 800000)
+
+            ;; GC automatically while unfocusing the frame
+            ;; `focus-out-hook' is obsolete since 27.1
             (if (boundp 'after-focus-change-function)
                 (add-function :after after-focus-change-function
-                              (lambda ()
-                                (unless (frame-focus-state)
-                                  (garbage-collect))))
-              (add-hook 'focus-out-hook 'garbage-collect))))
+                  (lambda ()
+                    (unless (frame-focus-state)
+                      (garbage-collect))))
+              (add-hook 'focus-out-hook 'garbage-collect))
+
+            ;; Avoid GCs while using `ivy'/`counsel'/`swiper' and `helm', etc.
+            ;; @see http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/
+            (defun my-minibuffer-setup-hook ()
+              (setq gc-cons-threshold 40000000))
+
+            (defun my-minibuffer-exit-hook ()
+              (garbage-collect)
+              (setq gc-cons-threshold 800000))
+
+            (add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
+            (add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)))
 
 ;; Load path
 ;; Optimize: Force "lisp"" and "site-lisp" at the head to reduce the startup time.
@@ -88,13 +128,13 @@
 (require 'init-flycheck)
 (require 'init-projectile)
 (require 'init-lsp)
-(require 'init-dap)
 
 (require 'init-emacs-lisp)
 (require 'init-c)
 (require 'init-go)
 (require 'init-python)
 (require 'init-ruby)
+(require 'init-elixir)
 (require 'init-web)
 (require 'init-prog)
 

@@ -43,10 +43,18 @@
 ;; Youdao Dictionary
 (use-package youdao-dictionary
   :functions (posframe-show posframe-hide)
-  :preface
+  :bind (("C-c y" . my-youdao-search-at-point)
+         ("C-c Y" . youdao-dictionary-search-at-point))
+  :config
+  ;; Cache documents
+  (setq url-automatic-caching t)
+
+  ;; Enable Chinese word segmentation support (支持中文分词)
+  (setq youdao-dictionary-use-chinese-word-segmentation t)
+
   (with-eval-after-load 'posframe
     (defun youdao-dictionary-search-at-point-posframe ()
-      "Search word at point and display result with `posframe'."
+      "Search word at point and display result with posframe."
       (interactive)
       (let ((word (youdao-dictionary--region-or-word)))
         (if word
@@ -58,8 +66,7 @@
                   (insert (youdao-dictionary--format-result word))
                   (goto-char (point-min))
                   (set (make-local-variable 'youdao-dictionary-current-buffer-word) word)))
-              (posframe-show youdao-dictionary-buffer-name
-                             :position (point))
+              (posframe-show youdao-dictionary-buffer-name :position (point))
               (unwind-protect
                   (push (read-event) unread-command-events)
                 (posframe-hide youdao-dictionary-buffer-name)))
@@ -70,15 +77,8 @@
     (if (display-graphic-p)
         (if (fboundp 'youdao-dictionary-search-at-point-posframe)
             (youdao-dictionary-search-at-point-posframe)
-          (youdao-dictionary-search-at-point-tooltip))))
-  :bind (("C-c y" . youdao-dictionary-search-at-point)
-         ("C-c Y" . my-youdao-search-at-point))
-  :config
-  ;; Cache documents
-  (setq url-automatic-caching t)
-
-  ;; Enable Chinese word segmentation support (支持中文分词)
-  (setq youdao-dictionary-use-chinese-word-segmentation t))
+          (youdao-dictionary-search-at-point-tooltip))
+      (youdao-dictionary-search-at-point))))
 
 ;;
 ;; Search tools
@@ -87,8 +87,8 @@
 ;; Writable `grep' buffer
 (use-package wgrep
   :init
-  (setq wgrep-auto-save-buffer t)
-  (setq wgrep-change-readonly-file t))
+  (setq wgrep-auto-save-buffer t
+        wgrep-change-readonly-file t))
 
 ;; `find-dired' alternative using `fd'
 (when (executable-find "fd")
@@ -100,8 +100,8 @@
     :defines projectile-command-map
     :hook (after-init . rg-enable-default-bindings)
     :config
-    (setq rg-group-result t)
-    (setq rg-show-columns t)
+    (setq rg-group-result t
+          rg-show-columns t)
 
     (cl-pushnew '("tmpl" . "*.tmpl") rg-custom-type-aliases)
 
@@ -110,30 +110,18 @@
       (bind-key "s R" #'rg-project projectile-command-map))
 
     (with-eval-after-load 'counsel
-      (bind-keys :map rg-global-map
-                 ("c r" . counsel-rg)
-                 ("c s" . counsel-ag)
-                 ("c p" . counsel-pt)
-                 ("c f" . counsel-fzf)))))
-
-;; Edit text for browsers with GhostText or AtomicChrome extension
-(use-package atomic-chrome
-  :hook ((emacs-startup . atomic-chrome-start-server)
-         (atomic-chrome-edit-mode . delete-other-windows))
-  :init (setq atomic-chrome-buffer-open-style 'frame)
-  :config
-  (if (fboundp 'gfm-mode)
-      (setq atomic-chrome-url-major-mode-alist
-            '(("github\\.com" . gfm-mode)))))
-
-;; Open files as another user
-(unless sys/win32p
-  (use-package sudo-edit))
+      (bind-keys
+       :map rg-global-map
+       ("c r" . counsel-rg)
+       ("c s" . counsel-ag)
+       ("c p" . counsel-pt)
+       ("c f" . counsel-fzf)))))
 
 ;; Docker
 (use-package docker
   :bind ("C-c d" . docker)
-  :init (setq docker-image-run-arguments '("-i" "-t" "--rm")))
+  :init (setq docker-image-run-arguments '("-i" "-t" "--rm")
+              docker-container-shell-file-name "/bin/bash"))
 
 ;; Tramp
 (use-package docker-tramp)
@@ -171,31 +159,34 @@
         (save-buffer))))
   :hook (after-init . persistent-scratch-setup-default)
   :bind (:map lisp-interaction-mode-map
-              ("C-x C-s" . my-save-buffer)))
+         ("C-x C-s" . my-save-buffer)))
 
 ;; PDF reader
 (when (display-graphic-p)
-  (use-package pdf-view
-    :ensure pdf-tools
+  (use-package pdf-tools
     :diminish (pdf-view-midnight-minor-mode pdf-view-printer-minor-mode)
+    :defines pdf-annot-activate-created-annotations
     :mode ("\\.[pP][dD][fF]\\'" . pdf-view-mode)
     :magic ("%PDF" . pdf-view-mode)
     :bind (:map pdf-view-mode-map
-                ("C-s" . isearch-forward))
-    :init (setq pdf-view-midnight-colors '("#ededed" . "#21242b"))
+           ("C-s" . isearch-forward))
+    :init
+    (setq pdf-view-midnight-colors '("#ededed" . "#21242b")
+          pdf-annot-activate-created-annotations t)
     :config
     ;; WORKAROUND: Fix compilation errors on macOS.
     ;; @see https://github.com/politza/pdf-tools/issues/480
     (when sys/macp
       (setenv "PKG_CONFIG_PATH"
-              "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig"))
+              "/usr/local/lib/pkgconfig:/usr/local/opt/libffi/lib/pkgconfig"))
     (pdf-tools-install t nil t t)
 
     ;; Recover last viewed position
-    (use-package pdf-view-restore
-      :hook (pdf-view-mode . pdf-view-restore-mode)
-      :init (setq pdf-view-restore-filename
-                  (locate-user-emacs-file ".pdf-view-restore")))))
+    (when emacs/>=26p
+      (use-package pdf-view-restore
+        :hook (pdf-view-mode . pdf-view-restore-mode)
+        :init (setq pdf-view-restore-filename
+                    (locate-user-emacs-file ".pdf-view-restore"))))))
 
 ;; Epub reader
 (use-package nov
@@ -214,6 +205,7 @@
   :init (setq olivetti-body-width 0.618))
 
 ;; Misc
+(use-package bongo)                     ; music player
 (use-package copyit)                    ; copy path, url, etc.
 (use-package daemons)                   ; system services/daemons
 (use-package diffview)                  ; side-by-side diff view

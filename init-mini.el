@@ -1,4 +1,11 @@
-;;; init-mini.el --- Emacs minimal configurations.	-*- lexical-binding: t no-byte-compile: t; -*-
+;;; init-mini.el --- Centaur Emacs minimal configurations.	-*- lexical-binding: t no-byte-compile: t; -*-
+
+;; Copyright (C) 2018-2019 Vincent Zhang
+
+;; Author: Vincent Zhang <seagle0128@gmail.com>
+;; URL: https://github.com/seagle0128/.emacs.d
+;; Version: 1.0.0
+;; Keywords: .emacs.d centaur
 
 ;; This file is not part of GNU Emacs.
 ;;
@@ -20,7 +27,7 @@
 
 ;;; Commentary:
 ;;
-;; Emacs minimal configurations for debugging purpose.
+;; Centaur Emacs minimal configurations for debugging purpose.
 ;;
 
 ;;; Code:
