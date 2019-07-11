@@ -43,7 +43,13 @@
         (set-fontset-font t '(#x4e00 . #x9fff) "微软雅黑")))
 
    (sys/mac-x-p
-    (set-face-attribute 'default nil :height 180)))
+    (set-face-attribute 'default nil :height 180))
+
+   (sys/linux-x-p
+    (set-face-attribute 'default nil :height 140)
+
+    (set-fontset-font t '(#x4e00 . #x9fff) "Noto Sans CJK SC Regular")
+    (set-face-attribute 'default nil :font "Source Code Variable")))
   )
 
 ;; Misc.
