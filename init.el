@@ -138,8 +138,6 @@
 (require 'init-web)
 (require 'init-prog)
 
-(require 'init-misc)
-(require 'init-tab)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; init.el ends here

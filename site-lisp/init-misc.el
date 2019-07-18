@@ -15,6 +15,7 @@
 (global-set-key [C-right] 'windmove-right)
 (global-set-key [C-up] 'windmove-up)
 (global-set-key [C-down] 'windmove-down)
+
 (global-unset-key [S-left])
 (global-unset-key [S-right])
 (global-unset-key [S-up])

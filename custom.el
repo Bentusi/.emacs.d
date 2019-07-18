@@ -48,8 +48,11 @@
    (sys/linux-x-p
     (set-face-attribute 'default nil :height 140)
 
-    (set-fontset-font t '(#x4e00 . #x9fff) "Noto Sans CJK SC Regular")
-    (set-face-attribute 'default nil :font "Source Code Variable")))
+    (if (member "Noto Sans CJK SC" (font-family-list))
+        (set-fontset-font t '(#x4e00 . #x9fff) "Noto Sans CJK SC"))
+
+    (if (member "Source Code Variable" (font-family-list))
+        (set-face-attribute 'default nil :font "Source Code Variable"))))
   )
 
 ;; Misc.
