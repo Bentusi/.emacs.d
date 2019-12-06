@@ -46,7 +46,7 @@
     (set-face-attribute 'default nil :height 180))
 
    (sys/linux-x-p
-    (set-face-attribute 'default nil :height 140)
+    (set-face-attribute 'default nil :height 150)
 
     (if (member "Noto Sans CJK SC" (font-family-list))
         (set-fontset-font t '(#x4e00 . #x9fff) "Noto Sans CJK SC"))
