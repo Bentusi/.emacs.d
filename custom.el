@@ -22,17 +22,16 @@
 
 ;; Fonts
 (when (display-graphic-p)
+   ;; Set default fonts
+   (if (member "Source Code Variable" (font-family-list))
+       (set-face-attribute 'default nil :font "Source Code Variable"))
+
+   ;; Specify fonts for all unicode characters
+   (if (member "Cambria Math" (font-family-list))
+       (set-fontset-font t 'unicode "Cambria Math" nil 'prepend))
   (cond
    (sys/win32p
     (set-face-attribute 'default nil :height 140)
-
-    ;; Set default fonts
-    (if (member "Source Code Variable" (font-family-list))
-        (set-face-attribute 'default nil :font "Source Code Variable"))
-
-    ;; Specify fonts for all unicode characters
-    (if (member "Cambria Math" (font-family-list))
-        (set-fontset-font t 'unicode "Cambria Math" nil 'prepend))
 
     ;; Specify fonts for all unicode characters
     (if (member "Segoe UI Symbol" (font-family-list))
@@ -45,27 +44,16 @@
    (sys/mac-x-p
     (set-face-attribute 'default nil :height 180)
 
-    ;; Set default fonts
-    (if (member "Source Code Variable" (font-family-list))
-        (set-face-attribute 'default nil :font "Source Code Variable"))
-
-    ;; Specify fonts for all unicode characters
-    (if (member "Cambria Math" (font-family-list))
-        (set-fontset-font t 'unicode "Cambria Math" nil 'prepend))
-
     ;; Specify fonts for Chinese characters
     (if (member "Hiragino Sans GB" (font-family-list))
         (set-fontset-font t '(#x4e00 . #x9fff) "Hiragino Sans GB")))
 
    (sys/linux-x-p
-    (set-face-attribute 'default nil :height 150)
+    (set-face-attribute 'default nil :height 130)
 
     (if (member "Noto Sans CJK SC" (font-family-list))
-        (set-fontset-font t '(#x4e00 . #x9fff) "Noto Sans CJK SC"))
-
-    (if (member "Source Code Variable" (font-family-list))
-        (set-face-attribute 'default nil :font "Source Code Variable"))))
-  )
+        (set-fontset-font t '(#x4e00 . #x9fff) "Noto Sans CJK SC")))
+   ))
 
 ;; Misc.
 ;; (setq confirm-kill-emacs 'y-or-n-p)
