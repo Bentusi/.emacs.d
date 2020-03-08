@@ -1,9 +1,9 @@
 ;;; pager.el --- windows-scroll commands
 ;; Package-Version: 20151202.120
 ;;; Version 2.0 - 97-10-06
-;;; Copyright (C) 1992-1997 Mikael Sj鰀in (mic@docs.uu.se)
+;;; Copyright (C) 1992-1997 Mikael Sjödin (mic@docs.uu.se)
 ;;;
-;;; Author: Mikael Sj鰀in  --  mic@docs.uu.se
+;;; Author: Mikael Sjödin  --  mic@docs.uu.se
 ;;;
 ;;; This file is NOT part of GNU Emacs.
 ;;; You may however redistribute it and/or modify it under the terms of the GNU
